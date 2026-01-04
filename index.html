@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
+
+<style>
+:root {
+  --bg: #f3f4f6;
+  --card: #ffffff;
+  --text: #111827;
+  --primary: #4f46e5;
+}
+
+.dark {
+  --bg: #111827;
+  --card: #1f2933;
+  --text: #f9fafb;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.hidden {
+  display: none;
+}
+
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 20px;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: var(--primary);
+  color: white;
+}
+
+.card {
+  background: var(--card);
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+  gap: 15px;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+}
+
+ul {
+  list-style: none;
+}
+
+li {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="container" id="loginPage">
+  <div class="card">
+    <h2>Login</h2><br>
+    <input id="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Senha">
+    <button onclick="login()">Entrar</button>
+    <p id="loginMsg"></p>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="container hidden" id="dashboard">
+  <header>
+    <h2>Admin Dashboard</h2>
+    <div>
+      <button onclick="toggleTheme()">Tema</button>
+      <button onclick="logout()">Sair</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Total de Usuários</h3>
+      <p id="usersCount">0</p>
+    </div>
+    <div class="card">
+      <h3>Total de Tarefas</h3>
+      <p id="tasksCount">0</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Adicionar Usuário</h3><br>
+    <input id="userName" placeholder="Nome">
+    <button onclick="addUser()">Adicionar</button>
+  </div>
+
+  <div class="card">
+    <h3>Usuários</h3>
+    <ul id="usersList"></ul>
+  </div>
+
+  <div class="card">
+    <h3>Adicionar Tarefa</h3><br>
+    <input id="taskName" placeholder="Descrição">
+    <button onclick="addTask()">Adicionar</button>
+  </div>
+
+  <div class="card">
+    <h3>Tarefas</h3>
+    <ul id="tasksList"></ul>
+  </div>
+</div>
+
+<script>
+const loginPage = document.getElementById("loginPage");
+const dashboard = document.getElementById("dashboard");
+
+let users = JSON.parse(localStorage.getItem("users")) || [];
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+let logged = JSON.parse(localStorage.getItem("logged"));
+
+if (logged) showDashboard();
+
+function login() {
+  if (email.value === "admin@email.com" && password.value === "1234") {
+    localStorage.setItem("logged", true);
+    showDashboard();
+  } else {
+    loginMsg.textContent = "Login inválido";
+  }
+}
+
+function showDashboard() {
+  loginPage.classList.add("hidden");
+  dashboard.classList.remove("hidden");
+  render();
+}
+
+function logout() {
+  localStorage.removeItem("logged");
+  location.reload();
+}
+
+function toggleTheme() {
+  document.body.classList.toggle("dark");
+}
+
+function addUser() {
+  if (!userName.value) return;
+  users.push(userName.value);
+  localStorage.setItem("users", JSON.stringify(users));
+  userName.value = "";
+  render();
+}
+
+function addTask() {
+  if (!taskName.value) return;
+  tasks.push(taskName.value);
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+  taskName.value = "";
+  render();
+}
+
+function render() {
+  usersList.innerHTML = "";
+  tasksList.innerHTML = "";
+
+  users.forEach((u, i) => {
+    usersList.innerHTML += `<li>${u} <button onclick="removeUser(${i})">X</button></li>`;
+  });
+
+  tasks.forEach((t, i) => {
+    tasksList.innerHTML += `<li>${t} <button onclick="removeTask(${i})">X</button></li>`;
+  });
+
+  usersCount.textContent = users.length;
+  tasksCount.textContent = tasks.length;
+}
+
+function removeUser(i) {
+  users.splice(i,1);
+  localStorage.setItem("users", JSON.stringify(users));
+  render();
+}
+
+function removeTask(i) {
+  tasks.splice(i,1);
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+  render();
+}
+</script>
+
+</body>
+</html>
+/*
+Usuário:admin@emai.com
+Senha:1234
+*/
